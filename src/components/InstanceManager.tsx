@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Plus, Trash2, Users, Edit3, Check, X } from 'lucide-react';
 import { Instance } from '../types';
 

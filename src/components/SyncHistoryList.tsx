@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { Clock, FileText } from 'lucide-react';
 import { SyncRecord } from '../types';
 import StatusBadge from './StatusBadge';

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { RefreshCw, Settings, FileText, Clock, Plus, Download } from 'lucide-react';
-import { Instance, SyncRecord } from '../types';
+import { Instance } from '../types';
 import SyncHistoryList from './SyncHistoryList';
 import SettingsModal from './SettingsModal';
 import InstanceManager from './InstanceManager';

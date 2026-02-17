@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { FolderOpen, HardDrive, Plus } from 'lucide-react';
+import { useState } from 'react';
+import { Plus } from 'lucide-react';
 
 interface SetupWizardProps {
   onDirectorySelected: () => void;

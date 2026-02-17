@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import SetupWizard from './components/SetupWizard';
 import Dashboard from './components/Dashboard';
-import { AppConfig, Instance } from './types';
+import { AppConfig } from './types';
 
 function App() {
   const [config, setConfig] = useState<AppConfig | null>(null);
@@ -17,7 +17,7 @@ function App() {
       setIsLoading(false);
     });
     
-    window.electronAPI.onSyncCompleted((data) => {
+    window.electronAPI.onSyncCompleted(() => {
       // Reload config to get updated sync history
       loadConfig();
     });
