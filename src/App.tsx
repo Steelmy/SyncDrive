@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import SetupWizard from './components/SetupWizard';
 import Dashboard from './components/Dashboard';
 import { AppConfig } from './types';
+import { useTranslation } from './i18n/LanguageContext';
 
 function App() {
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useTranslation();
   
   useEffect(() => {
     // Load config when component mounts
@@ -71,7 +73,7 @@ function App() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-pulse text-blue-600 text-center">
           <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-xl font-medium">Loading application...</p>
+          <p className="text-xl font-medium">{t('app.loading')}</p>
         </div>
       </div>
     );

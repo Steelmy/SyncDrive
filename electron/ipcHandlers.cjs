@@ -26,6 +26,7 @@ const {
 } = require("./sync.cjs");
 const { createInstanceFolders } = require("./folders.cjs");
 const { downloadFromDrive } = require("./download.cjs");
+const store = require("./store.cjs");
 
 let mainWindow;
 
@@ -44,6 +45,9 @@ function setupIpcHandlers(win) {
 
   // ─── Sync & download ───────────────────────────────────────────
   registerSyncHandlers();
+
+  // ─── Language ───────────────────────────────────────────────────
+  registerLanguageHandlers();
 }
 
 // ─── Instance Handlers ────────────────────────────────────────────────
@@ -442,6 +446,19 @@ function getAuthErrorHtml(errorMessage) {
       </body>
     </html>
   `;
+}
+
+// ─── Language Handlers ──────────────────────────────────────────────
+
+function registerLanguageHandlers() {
+  ipcMain.handle("get-language", () => {
+    return store.get("language") || "fr";
+  });
+
+  ipcMain.handle("set-language", (event, lang) => {
+    store.set("language", lang);
+    return true;
+  });
 }
 
 module.exports = setupIpcHandlers;

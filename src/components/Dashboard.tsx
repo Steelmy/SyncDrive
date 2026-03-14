@@ -6,6 +6,7 @@ import SettingsModal from './SettingsModal';
 import InstanceManager from './InstanceManager';
 import GoogleAuthSetup from './GoogleAuthSetup';
 import DownloadModal from './DownloadModal';
+import { useTranslation } from '../i18n/LanguageContext';
 
 interface DashboardProps {
   instances: Instance[];
@@ -30,13 +31,14 @@ const Dashboard: React.FC<DashboardProps> = ({
     success?: boolean;
     message?: string;
   }>({});
+  const { t } = useTranslation();
   
   const handleSyncNow = async () => {
     if (isSyncing || !currentInstance) return;
     
     setIsSyncing(true);
     setSyncStatus({
-      message: 'Syncing in progress...'
+      message: t('dashboard.syncInProgress')
     });
     
     try {
@@ -48,7 +50,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     } catch (error) {
       setSyncStatus({
         success: false,
-        message: 'Failed to sync. Please try again.'
+        message: t('dashboard.syncFailed')
       });
     } finally {
       setIsSyncing(false);
@@ -116,7 +118,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   // Format last sync time in a human-readable way
   const formattedLastSyncTime = currentInstance?.lastSyncTime 
     ? new Date(currentInstance.lastSyncTime).toLocaleString() 
-    : 'Never';
+    : t('dashboard.never');
     
   return (
     <div className="min-h-screen bg-gray-50">
@@ -125,7 +127,7 @@ const Dashboard: React.FC<DashboardProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
           <div className="flex items-center">
             <RefreshCw className="h-6 w-6 text-blue-600 mr-2" />
-            <h1 className="text-xl font-semibold text-gray-800">Drive Sync</h1>
+            <h1 className="text-xl font-semibold text-gray-800">{t('dashboard.title')}</h1>
             {currentInstance && (
               <span className="ml-3 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">
                 {currentInstance.name}
@@ -157,21 +159,21 @@ const Dashboard: React.FC<DashboardProps> = ({
           <>
             {/* Directory info */}
             <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-              <h2 className="text-lg font-medium text-gray-800 mb-2">Root Directory</h2>
+              <h2 className="text-lg font-medium text-gray-800 mb-2">{t('dashboard.rootDirectory')}</h2>
               {currentInstance.rootDirectory ? (
                 <div className="bg-gray-50 p-3 rounded-lg break-all text-sm font-mono text-gray-700">
                   {currentInstance.rootDirectory}
                 </div>
               ) : (
                 <div className="bg-yellow-50 p-3 rounded-lg text-yellow-700">
-                  No directory selected. Please select a directory to sync.
+                  {t('dashboard.noDirectorySelected')}
                 </div>
               )}
               
               <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-center text-sm text-gray-600">
                   <Clock className="h-4 w-4 mr-1" />
-                  <span>Last sync: {formattedLastSyncTime}</span>
+                  <span>{t('dashboard.lastSync')} {formattedLastSyncTime}</span>
                 </div>
                 
                 <div className="flex gap-2">
@@ -191,12 +193,12 @@ const Dashboard: React.FC<DashboardProps> = ({
                         {isSyncing ? (
                           <>
                             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                            Syncing...
+                            {t('dashboard.syncing')}
                           </>
                         ) : (
                           <>
                             <RefreshCw className="h-4 w-4 mr-2" />
-                            Sync Now
+                            {t('dashboard.syncNow')}
                           </>
                         )}
                       </button>
@@ -206,7 +208,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                         className="flex items-center justify-center px-4 py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 transition-colors"
                       >
                         <Download className="h-4 w-4 mr-2" />
-                        Download
+                        {t('dashboard.download')}
                       </button>
                     </>
                   )}
@@ -230,29 +232,29 @@ const Dashboard: React.FC<DashboardProps> = ({
             {/* Authentication Status */}
             {!currentInstance.isAuthenticated && (
               <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-                <h2 className="text-lg font-medium text-gray-800 mb-2">Google Drive Authentication</h2>
+                <h2 className="text-lg font-medium text-gray-800 mb-2">{t('dashboard.googleAuth')}</h2>
                 <p className="text-gray-600 mb-4">
-                  You need to authenticate with Google Drive to start syncing files.
+                  {t('dashboard.googleAuthDesc')}
                 </p>
                 <button
                   onClick={() => setShowGoogleAuth(true)}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  Authenticate with Google Drive
+                  {t('dashboard.authenticateWithGoogle')}
                 </button>
               </div>
             )}
             
             {/* Sync History */}
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-lg font-medium text-gray-800 mb-4">Sync History</h2>
+              <h2 className="text-lg font-medium text-gray-800 mb-4">{t('dashboard.syncHistory')}</h2>
               
               {currentInstance.syncHistory && currentInstance.syncHistory.length > 0 ? (
                 <SyncHistoryList history={currentInstance.syncHistory} />
               ) : (
                 <div className="text-center py-8 text-gray-500">
                   <FileText className="h-12 w-12 mx-auto text-gray-300 mb-2" />
-                  <p>No sync history available yet</p>
+                  <p>{t('dashboard.noSyncHistory')}</p>
                 </div>
               )}
             </div>
@@ -260,8 +262,8 @@ const Dashboard: React.FC<DashboardProps> = ({
         ) : (
           <div className="bg-white rounded-lg shadow-sm p-8 text-center">
             <Plus className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-            <h2 className="text-xl font-medium text-gray-800 mb-2">No Instance Selected</h2>
-            <p className="text-gray-600 mb-4">Create or select an instance to get started.</p>
+            <h2 className="text-xl font-medium text-gray-800 mb-2">{t('dashboard.noInstanceSelected')}</h2>
+            <p className="text-gray-600 mb-4">{t('dashboard.createOrSelectInstance')}</p>
           </div>
         )}
       </main>

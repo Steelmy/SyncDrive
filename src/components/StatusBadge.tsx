@@ -1,5 +1,6 @@
 
 import { ArrowUpFromLine, ArrowDownToLine, AlertCircle, Check, Archive, Package, FolderOpen } from 'lucide-react';
+import { useTranslation } from '../i18n/LanguageContext';
 
 interface StatusBadgeProps {
   status: 'upload' | 'download' | 'none' | 'error' | 'backup' | 'zip' | 'extract';
@@ -7,6 +8,8 @@ interface StatusBadgeProps {
 }
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md' }) => {
+  const { t } = useTranslation();
+
   const sizeClasses = size === 'sm' 
     ? 'py-0.5 px-2 text-xs' 
     : 'py-1 px-3 text-sm';
@@ -16,49 +19,49 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md' }) => {
       return (
         <span className={`inline-flex items-center rounded-full bg-indigo-100 text-indigo-700 ${sizeClasses}`}>
           <ArrowUpFromLine className={size === 'sm' ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-1'} />
-          Uploaded
+          {t('status.uploaded')}
         </span>
       );
     case 'download':
       return (
         <span className={`inline-flex items-center rounded-full bg-blue-100 text-blue-700 ${sizeClasses}`}>
           <ArrowDownToLine className={size === 'sm' ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-1'} />
-          Downloaded
+          {t('status.downloaded')}
         </span>
       );
     case 'backup':
       return (
         <span className={`inline-flex items-center rounded-full bg-orange-100 text-orange-700 ${sizeClasses}`}>
           <Archive className={size === 'sm' ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-1'} />
-          Backed up
+          {t('status.backedUp')}
         </span>
       );
     case 'zip':
       return (
         <span className={`inline-flex items-center rounded-full bg-purple-100 text-purple-700 ${sizeClasses}`}>
           <Package className={size === 'sm' ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-1'} />
-          Zipped
+          {t('status.zipped')}
         </span>
       );
     case 'extract':
       return (
         <span className={`inline-flex items-center rounded-full bg-teal-100 text-teal-700 ${sizeClasses}`}>
           <FolderOpen className={size === 'sm' ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-1'} />
-          Extracted
+          {t('status.extracted')}
         </span>
       );
     case 'none':
       return (
         <span className={`inline-flex items-center rounded-full bg-green-100 text-green-700 ${sizeClasses}`}>
           <Check className={size === 'sm' ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-1'} />
-          In Sync
+          {t('status.inSync')}
         </span>
       );
     case 'error':
       return (
         <span className={`inline-flex items-center rounded-full bg-red-100 text-red-700 ${sizeClasses}`}>
           <AlertCircle className={size === 'sm' ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-1'} />
-          Error
+          {t('status.error')}
         </span>
       );
     default:

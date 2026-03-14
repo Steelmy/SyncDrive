@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
+import { useTranslation } from '../i18n/LanguageContext';
 
 interface SetupWizardProps {
   onDirectorySelected: () => void;
@@ -9,6 +10,7 @@ const SetupWizard: React.FC<SetupWizardProps> = ({ onDirectorySelected }) => {
   const [instanceName, setInstanceName] = useState('My First Instance');
   const [isCreating, setIsCreating] = useState(false);
   const [step, setStep] = useState(1);
+  const { t } = useTranslation();
   
   const handleCreateInstance = async () => {
     setIsCreating(true);
@@ -27,8 +29,8 @@ const SetupWizard: React.FC<SetupWizardProps> = ({ onDirectorySelected }) => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden transition-all duration-300 transform">
         <div className="bg-blue-600 p-6 text-white">
-          <h1 className="text-2xl font-bold">Welcome to Drive Sync</h1>
-          <p className="mt-2 opacity-90">Let's create your first sync instance</p>
+          <h1 className="text-2xl font-bold">{t('setup.welcome')}</h1>
+          <p className="mt-2 opacity-90">{t('setup.letsCreate')}</p>
         </div>
         
         <div className="p-6">
@@ -36,22 +38,22 @@ const SetupWizard: React.FC<SetupWizardProps> = ({ onDirectorySelected }) => {
             <div className="space-y-6">
               <div className="text-center py-6">
                 <Plus className="mx-auto h-16 w-16 text-blue-600 mb-4" />
-                <h2 className="text-xl font-semibold text-gray-800">Create Your First Instance</h2>
+                <h2 className="text-xl font-semibold text-gray-800">{t('setup.createFirstInstance')}</h2>
                 <p className="mt-2 text-gray-600">
-                  Each instance can sync with a different Google Drive account and folder.
+                  {t('setup.instanceDescription')}
                 </p>
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Instance Name
+                  {t('setup.instanceName')}
                 </label>
                 <input
                   type="text"
                   value={instanceName}
                   onChange={(e) => setInstanceName(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter instance name"
+                  placeholder={t('setup.enterInstanceName')}
                 />
               </div>
               
@@ -67,12 +69,12 @@ const SetupWizard: React.FC<SetupWizardProps> = ({ onDirectorySelected }) => {
                 {isCreating ? (
                   <>
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                    Creating Instance...
+                    {t('setup.creatingInstance')}
                   </>
                 ) : (
                   <>
                     <Plus className="mr-2 h-5 w-5" />
-                    Create Instance
+                    {t('setup.createInstance')}
                   </>
                 )}
               </button>
@@ -85,14 +87,14 @@ const SetupWizard: React.FC<SetupWizardProps> = ({ onDirectorySelected }) => {
                 </svg>
               </div>
               
-              <h2 className="text-xl font-semibold text-gray-800">Instance Created!</h2>
+              <h2 className="text-xl font-semibold text-gray-800">{t('setup.instanceCreated')}</h2>
               
               <p className="text-gray-600">
-                Your instance "{instanceName}" has been created successfully.
+                {t('setup.instanceCreatedDesc', { name: instanceName })}
               </p>
               
               <p className="text-gray-600 mt-4">
-                You can now configure your Google Drive authentication and select a directory to sync.
+                {t('setup.configureNext')}
               </p>
             </div>
           )}

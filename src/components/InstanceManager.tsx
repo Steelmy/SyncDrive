@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Plus, Trash2, Users, Edit3, Check, X } from 'lucide-react';
 import { Instance } from '../types';
+import { useTranslation } from '../i18n/LanguageContext';
 
 interface InstanceManagerProps {
   instances: Instance[];
@@ -21,6 +22,7 @@ const InstanceManager: React.FC<InstanceManagerProps> = ({
   const [newInstanceName, setNewInstanceName] = useState('');
   const [editingInstanceId, setEditingInstanceId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
+  const { t } = useTranslation();
 
   const handleCreateInstance = () => {
     if (newInstanceName.trim()) {
@@ -31,7 +33,7 @@ const InstanceManager: React.FC<InstanceManagerProps> = ({
   };
 
   const handleDeleteInstance = (instanceId: string) => {
-    if (instances.length > 1 && confirm('Are you sure you want to delete this instance?')) {
+    if (instances.length > 1 && confirm(t('instances.deleteConfirm'))) {
       onDeleteInstance(instanceId);
     }
   };
@@ -66,7 +68,7 @@ const InstanceManager: React.FC<InstanceManagerProps> = ({
     const instance = instances[instanceIndex]
     const rootDirectory = instance.rootDirectory
     if (!rootDirectory) {
-      return "No root directory found"
+      return t('instances.noRootDirectory')
     }
 
     return rootDirectory.length > 60 ? rootDirectory.substring(0, 30) + "..." + rootDirectory.substring(rootDirectory.length-30, rootDirectory.length) : rootDirectory
@@ -77,14 +79,14 @@ const InstanceManager: React.FC<InstanceManagerProps> = ({
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-medium text-gray-800 flex items-center">
           <Users className="h-5 w-5 mr-2 text-blue-600" />
-          Instances
+          {t('instances.title')}
         </h2>
         <button
           onClick={() => setIsCreating(true)}
           className="flex items-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
         >
           <Plus className="h-4 w-4 mr-1" />
-          New Instance
+          {t('instances.newInstance')}
         </button>
       </div>
 
@@ -95,7 +97,7 @@ const InstanceManager: React.FC<InstanceManagerProps> = ({
               type="text"
               value={newInstanceName}
               onChange={(e) => setNewInstanceName(e.target.value)}
-              placeholder="Instance name"
+              placeholder={t('instances.instanceName')}
               className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               onKeyPress={(e) => e.key === 'Enter' && handleCreateInstance()}
               autoFocus
@@ -105,7 +107,7 @@ const InstanceManager: React.FC<InstanceManagerProps> = ({
               disabled={!newInstanceName.trim()}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition-colors"
             >
-              Create
+              {t('instances.create')}
             </button>
             <button
               onClick={() => {
@@ -114,7 +116,7 @@ const InstanceManager: React.FC<InstanceManagerProps> = ({
               }}
               className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
             >
-              Cancel
+              {t('instances.cancel')}
             </button>
           </div>
         </div>
@@ -149,14 +151,14 @@ const InstanceManager: React.FC<InstanceManagerProps> = ({
                       <button
                         onClick={handleSaveRename}
                         className="p-1 text-green-600 hover:bg-green-50 rounded transition-colors"
-                        title="Save"
+                        title={t('settings.save')}
                       >
                         <Check className="h-4 w-4" />
                       </button>
                       <button
                         onClick={handleCancelRename}
                         className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
-                        title="Cancel"
+                        title={t('settings.cancel')}
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -169,17 +171,17 @@ const InstanceManager: React.FC<InstanceManagerProps> = ({
                     <>
                       {instance.isAuthenticated && (
                         <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
-                          Connected
+                          {t('instances.connected')}
                         </span>
                       )}
                       {currentInstanceId === instance.id && (
                         <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
-                          Active
+                          {t('instances.active')}
                         </span>
                       )}
                       {instance.autoSyncEnabled === false && (
                         <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded-full">
-                          Auto-sync Off
+                          {t('instances.autoSyncOff')}
                         </span>
                       )}
                     </>
@@ -192,7 +194,7 @@ const InstanceManager: React.FC<InstanceManagerProps> = ({
                       {instance.userInfo ? (
                         <span>{instance.userInfo.email}</span>
                       ) : (
-                        <span>Not authenticated</span>
+                        <span>{t('instances.notAuthenticated')}</span>
                       )}
                     </div>
                     {instance.rootDirectory && (
@@ -212,7 +214,7 @@ const InstanceManager: React.FC<InstanceManagerProps> = ({
                       handleStartRename(instance);
                     }}
                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                    title="Rename instance"
+                    title={t('instances.renameInstance')}
                   >
                     <Edit3 className="h-4 w-4" />
                   </button>
@@ -224,7 +226,7 @@ const InstanceManager: React.FC<InstanceManagerProps> = ({
                         handleDeleteInstance(instance.id);
                       }}
                       className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete instance"
+                      title={t('instances.deleteInstance')}
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>

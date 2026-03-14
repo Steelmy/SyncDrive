@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ExternalLink, Key, CheckCircle, Copy } from 'lucide-react';
 import Modal from './ui/Modal';
 import AlertBanner from './ui/AlertBanner';
+import { useTranslation } from '../i18n/LanguageContext';
 
 interface GoogleAuthSetupProps {
   instanceId: string;
@@ -20,6 +21,7 @@ const GoogleAuthSetup: React.FC<GoogleAuthSetupProps> = ({
   const [authUrl, setAuthUrl] = useState('');
   const [error, setError] = useState('');
   const [isManualAuthenticating, setIsManualAuthenticating] = useState(false);
+  const { t } = useTranslation();
 
   const handleAutoAuth = async () => {
     setIsAuthenticating(true);
@@ -35,7 +37,7 @@ const GoogleAuthSetup: React.FC<GoogleAuthSetupProps> = ({
         await getAuthUrl();
       }
     } catch {
-      setError('Authentication failed. Please try manual authentication.');
+      setError(t('auth.authFailed'));
       setShowManualAuth(true);
       await getAuthUrl();
     } finally {
@@ -49,16 +51,16 @@ const GoogleAuthSetup: React.FC<GoogleAuthSetupProps> = ({
       if (result.success && result.authUrl) {
         setAuthUrl(result.authUrl);
       } else {
-        setError(result.error || 'Failed to get authentication URL');
+        setError(result.error || t('auth.failedToGetUrl'));
       }
     } catch {
-      setError('Failed to get authentication URL');
+      setError(t('auth.failedToGetUrl'));
     }
   };
 
   const handleManualAuth = async () => {
     if (!authCode.trim()) {
-      setError('Please enter the authorization code');
+      setError(t('auth.pleaseEnterCode'));
       return;
     }
 
@@ -73,7 +75,7 @@ const GoogleAuthSetup: React.FC<GoogleAuthSetupProps> = ({
         setError(result.error || 'Invalid authorization code');
       }
     } catch {
-      setError('Authentication failed. Please check the code and try again.');
+      setError(t('auth.authFailedCheckCode'));
     } finally {
       setIsManualAuthenticating(false);
     }
@@ -96,7 +98,7 @@ const GoogleAuthSetup: React.FC<GoogleAuthSetupProps> = ({
       onClick={onCancel}
       className="w-full py-2 px-4 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
     >
-      Cancel
+      {t('auth.cancel')}
     </button>
   );
 
@@ -104,12 +106,12 @@ const GoogleAuthSetup: React.FC<GoogleAuthSetupProps> = ({
     <Modal
       isOpen={true}
       onClose={onCancel}
-      title="Connect to Google Drive"
+      title={t('auth.connectToGoogleDrive')}
       footer={footer}
     >
       {/* Configuration Warning */}
-      <AlertBanner variant="warning" title="Setup Required">
-        <p>Make sure to configure your Google Drive API credentials in <code className="bg-amber-100 px-1 rounded">electron/main.cjs</code> before authenticating.</p>
+      <AlertBanner variant="warning" title={t('auth.setupRequired')}>
+        <p>{t('auth.setupRequiredDesc')} <code className="bg-amber-100 px-1 rounded">electron/main.cjs</code> {t('auth.beforeAuth')}</p>
       </AlertBanner>
 
       {!showManualAuth ? (
@@ -120,10 +122,10 @@ const GoogleAuthSetup: React.FC<GoogleAuthSetupProps> = ({
               <Key className="h-8 w-8 text-blue-600" />
             </div>
             <h3 className="text-lg font-medium text-gray-800 mb-2">
-              Automatic Authentication
+              {t('auth.automaticAuth')}
             </h3>
             <p className="text-gray-600">
-              Click the button below to open Google's authentication page in your browser.
+              {t('auth.automaticAuthDesc')}
             </p>
           </div>
 
@@ -143,12 +145,12 @@ const GoogleAuthSetup: React.FC<GoogleAuthSetupProps> = ({
             {isAuthenticating ? (
               <div className="flex items-center justify-center">
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                Authenticating...
+                {t('auth.authenticating')}
               </div>
             ) : (
               <div className="flex items-center justify-center">
                 <ExternalLink className="h-5 w-5 mr-2" />
-                Authenticate with Google
+                {t('auth.authenticateWithGoogle')}
               </div>
             )}
           </button>
@@ -158,7 +160,7 @@ const GoogleAuthSetup: React.FC<GoogleAuthSetupProps> = ({
               onClick={() => { setShowManualAuth(true); getAuthUrl(); }}
               className="text-sm text-blue-600 hover:text-blue-700 underline"
             >
-              Having trouble? Try manual authentication
+              {t('auth.havingTrouble')}
             </button>
           </div>
         </div>
@@ -169,13 +171,13 @@ const GoogleAuthSetup: React.FC<GoogleAuthSetupProps> = ({
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Key className="h-8 w-8 text-green-600" />
             </div>
-            <h3 className="text-lg font-medium text-gray-800 mb-2">Manual Authentication</h3>
-            <p className="text-gray-600 text-sm">Follow these steps to authenticate manually:</p>
+            <h3 className="text-lg font-medium text-gray-800 mb-2">{t('auth.manualAuth')}</h3>
+            <p className="text-gray-600 text-sm">{t('auth.manualAuthDesc')}</p>
           </div>
 
           <div className="space-y-3">
             <div className="p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm font-medium text-gray-700 mb-2">Step 1: Open the authentication URL</p>
+              <p className="text-sm font-medium text-gray-700 mb-2">{t('auth.step1')}</p>
               {authUrl ? (
                 <div className="flex gap-2">
                   <button
@@ -183,7 +185,7 @@ const GoogleAuthSetup: React.FC<GoogleAuthSetupProps> = ({
                     className="flex-1 py-2 px-3 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors"
                   >
                     <ExternalLink className="h-4 w-4 inline mr-1" />
-                    Open Auth Page
+                    {t('auth.openAuthPage')}
                   </button>
                   <button
                     onClick={() => copyToClipboard(authUrl)}
@@ -195,25 +197,25 @@ const GoogleAuthSetup: React.FC<GoogleAuthSetupProps> = ({
                 </div>
               ) : (
                 <div className="text-sm text-red-600">
-                  Failed to generate authentication URL. Please check your API credentials.
+                  {t('auth.failedToGenerateUrl')}
                 </div>
               )}
             </div>
 
             <div className="p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm font-medium text-gray-700 mb-2">Step 2: Copy the authorization code</p>
+              <p className="text-sm font-medium text-gray-700 mb-2">{t('auth.step2')}</p>
               <p className="text-xs text-gray-600">
-                After granting permission, copy the code from the page and paste it below.
+                {t('auth.step2Desc')}
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Authorization Code</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('auth.authorizationCode')}</label>
               <input
                 type="text"
                 value={authCode}
                 onChange={(e) => setAuthCode(e.target.value)}
-                placeholder="Paste the authorization code here"
+                placeholder={t('auth.pasteCodeHere')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -234,12 +236,12 @@ const GoogleAuthSetup: React.FC<GoogleAuthSetupProps> = ({
               {isManualAuthenticating ? (
                 <div className="flex items-center justify-center">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Authenticating...
+                  {t('auth.authenticating')}
                 </div>
               ) : (
                 <div className="flex items-center justify-center">
                   <CheckCircle className="h-5 w-5 mr-2" />
-                  Authenticate with Code
+                  {t('auth.authenticateWithCode')}
                 </div>
               )}
             </button>
@@ -249,7 +251,7 @@ const GoogleAuthSetup: React.FC<GoogleAuthSetupProps> = ({
                 onClick={() => { setShowManualAuth(false); setError(''); setAuthCode(''); }}
                 className="text-sm text-blue-600 hover:text-blue-700 underline"
               >
-                Back to automatic authentication
+                {t('auth.backToAutomatic')}
               </button>
             </div>
           </div>

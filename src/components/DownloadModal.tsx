@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FolderOpen, Archive } from 'lucide-react';
 import { Instance, DownloadOptions } from '../types';
 import Modal from './ui/Modal';
 import AlertBanner from './ui/AlertBanner';
+import { useTranslation } from '../i18n/LanguageContext';
 
 interface DownloadModalProps {
   isOpen: boolean;
@@ -22,19 +23,27 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
   const [replaceFiles, setReplaceFiles] = useState(instance.downloadReplace ?? false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState('');
+  const { t } = useTranslation();
+
+  // Re-sync local state when instance data changes (e.g. after updating settings)
+  useEffect(() => {
+    setDownloadPath(instance.downloadPath || '');
+    setUnzipFiles(instance.downloadUnzip ?? true);
+    setReplaceFiles(instance.downloadReplace ?? false);
+  }, [instance.downloadPath, instance.downloadUnzip, instance.downloadReplace]);
 
   const handleSelectDirectory = async () => {
     try {
       const result = await window.electronAPI.selectDownloadDirectory(instance.id);
       if (result) setDownloadPath(result);
     } catch {
-      setError('Failed to select directory');
+      setError(t('download.failedToSelectDirectory'));
     }
   };
 
   const handleDownload = async () => {
     if (!downloadPath.trim()) {
-      setError('Please select a download directory');
+      setError(t('download.selectDirectoryError'));
       return;
     }
 
@@ -45,7 +54,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
       await onDownload({ downloadPath: downloadPath.trim(), unzipFiles, replaceFiles });
       onClose();
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'Download failed');
+      setError(error instanceof Error ? error.message : t('download.downloadFailed'));
     } finally {
       setIsDownloading(false);
     }
@@ -60,7 +69,7 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
         disabled={isDownloading}
         className="flex-1 py-2 px-4 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 transition-colors"
       >
-        Cancel
+        {t('download.cancel')}
       </button>
       <button
         onClick={handleDownload}
@@ -72,12 +81,12 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
         {isDownloading ? (
           <>
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-            Downloading...
+            {t('download.downloading')}
           </>
         ) : (
           <>
             <Archive className="h-4 w-4 mr-2" />
-            Download
+            {t('download.downloadBtn')}
           </>
         )}
       </button>
@@ -88,24 +97,24 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={isFirstTime ? 'Configure Download' : 'Download from Drive'}
+      title={isFirstTime ? t('download.configureDownload') : t('download.downloadFromDrive')}
       footer={footer}
     >
       {isFirstTime && (
-        <AlertBanner variant="info" title="First Time Setup">
-          <p>Configure your download preferences. These settings will be saved for future downloads.</p>
+        <AlertBanner variant="info" title={t('download.firstTimeSetup')}>
+          <p>{t('download.firstTimeSetupDesc')}</p>
         </AlertBanner>
       )}
 
       {/* Download Directory */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Download Directory</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">{t('download.downloadDirectory')}</label>
         <div className="flex gap-2">
           <input
             type="text"
             value={downloadPath}
             onChange={(e) => setDownloadPath(e.target.value)}
-            placeholder="Select download directory..."
+            placeholder={t('download.selectDirectory')}
             className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
             readOnly
           />
@@ -114,14 +123,14 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
             className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center"
           >
             <FolderOpen className="h-4 w-4 mr-1" />
-            Browse
+            {t('download.browse')}
           </button>
         </div>
       </div>
 
       {/* Options */}
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-800">Download Options</h3>
+        <h3 className="text-lg font-medium text-gray-800">{t('download.downloadOptions')}</h3>
         
         <div className="flex items-start space-x-3">
           <div className="flex items-center h-5">
@@ -135,10 +144,10 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
           </div>
           <div className="text-sm">
             <label htmlFor="unzip-files" className="font-medium text-gray-700 cursor-pointer">
-              Unzip downloaded files
+              {t('download.unzipFiles')}
             </label>
             <p className="text-gray-500">
-              Extract files from ZIP archive after download. If unchecked, only the ZIP file will be saved.
+              {t('download.unzipDesc')}
             </p>
           </div>
         </div>
@@ -155,30 +164,30 @@ const DownloadModal: React.FC<DownloadModalProps> = ({
           </div>
           <div className="text-sm">
             <label htmlFor="replace-files" className="font-medium text-gray-700 cursor-pointer">
-              Replace existing files
+              {t('download.replaceFiles')}
             </label>
             <p className="text-gray-500">
-              Overwrite existing files in the destination. A backup will be created automatically.
+              {t('download.replaceDesc')}
             </p>
           </div>
         </div>
 
         {replaceFiles && (
           <div className="ml-7">
-            <AlertBanner variant="warning" title="Backup Protection">
-              <p>Before replacing files, a backup ZIP will be created and stored in your Drive's backup-local folder. Only the 20 most recent backups are kept.</p>
+            <AlertBanner variant="warning" title={t('download.backupProtection')}>
+              <p>{t('download.backupProtectionDesc')}</p>
             </AlertBanner>
           </div>
         )}
       </div>
 
       {/* Version Check Warning */}
-      <AlertBanner variant="info" title="Version Check">
-        <p>The download will be cancelled if your local files are newer than the Drive version to prevent data loss.</p>
+      <AlertBanner variant="info" title={t('download.versionCheck')}>
+        <p>{t('download.versionCheckDesc')}</p>
       </AlertBanner>
 
       {error && (
-        <AlertBanner variant="error" title="Error">
+        <AlertBanner variant="error" title={t('download.error')}>
           <p>{error}</p>
         </AlertBanner>
       )}

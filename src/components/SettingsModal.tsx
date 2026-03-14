@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Folder, RefreshCw, Info, Edit3, Check, AlertCircle, LogOut, Archive, Power, PowerOff, Download } from 'lucide-react';
+import { Folder, RefreshCw, Info, Edit3, Check, AlertCircle, LogOut, Archive, Power, PowerOff, Download, Globe } from 'lucide-react';
 import { Instance } from '../types';
 import Modal from './ui/Modal';
 import ToggleSwitch from './ui/ToggleSwitch';
 import AlertBanner from './ui/AlertBanner';
+import { useTranslation } from '../i18n/LanguageContext';
+import { Language } from '../i18n/translations';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -36,6 +38,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const [downloadReplace, setDownloadReplace] = useState(false);
   const [isUpdatingDownloadSettings, setIsUpdatingDownloadSettings] = useState(false);
 
+  const { t, language, setLanguage } = useTranslation();
+
   useEffect(() => {
     if (currentInstance) {
       setEditedPath(currentInstance.rootDirectory || '');
@@ -59,7 +63,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const handlePathSave = async () => {
     if (!editedPath.trim()) {
-      setPathError('Path cannot be empty');
+      setPathError(t('settings.pathCannotBeEmpty'));
       return;
     }
     try {
@@ -69,10 +73,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         setPathError('');
         window.location.reload();
       } else {
-        setPathError(result.error || 'Failed to update path');
+        setPathError(result.error || t('settings.failedToUpdatePath'));
       }
     } catch {
-      setPathError('Failed to update path');
+      setPathError(t('settings.failedToUpdatePath'));
     }
   };
 
@@ -147,6 +151,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       setIsUpdatingDownloadSettings
     );
 
+  const handleLanguageChange = (lang: Language) => {
+    setLanguage(lang);
+  };
+
   // ─── Render ────────────────────────────────────────────────────
 
   const footer = (
@@ -154,7 +162,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       onClick={onClose}
       className="w-full py-2 px-4 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-medium"
     >
-      Close
+      {t('settings.close')}
     </button>
   );
 
@@ -162,13 +170,45 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Settings - ${currentInstance.name}`}
+      title={`${t('settings.title')} - ${currentInstance.name}`}
       footer={footer}
     >
+      {/* Language Section */}
+      <div>
+        <h3 className="text-lg font-medium text-gray-800 mb-3 flex items-center">
+          <Globe className="h-5 w-5 mr-2 text-blue-600" />
+          {t('settings.language')}
+        </h3>
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="flex gap-3">
+            <button
+              onClick={() => handleLanguageChange('fr')}
+              className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+                language === 'fr'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100'
+              }`}
+            >
+              🇫🇷 {t('settings.languageFr')}
+            </button>
+            <button
+              onClick={() => handleLanguageChange('en')}
+              className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+                language === 'en'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100'
+              }`}
+            >
+              🇬🇧 {t('settings.languageEn')}
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Google Account Section */}
       {currentInstance.isAuthenticated && currentInstance.userInfo && (
         <div>
-          <h3 className="text-lg font-medium text-gray-800 mb-3">Google Account</h3>
+          <h3 className="text-lg font-medium text-gray-800 mb-3">{t('settings.googleAccount')}</h3>
           <div className="bg-gray-50 p-4 rounded-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -189,7 +229,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 className="flex items-center px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
               >
                 <LogOut className="h-4 w-4 mr-1" />
-                Logout
+                {t('settings.logout')}
               </button>
             </div>
           </div>
@@ -200,7 +240,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       <div>
         <h3 className="text-lg font-medium text-gray-800 mb-3 flex items-center">
           <Folder className="h-5 w-5 mr-2 text-blue-600" />
-          Root Directory
+          {t('settings.rootDirectory')}
         </h3>
         
         {isEditingPath ? (
@@ -211,7 +251,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 value={editedPath}
                 onChange={(e) => setEditedPath(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
-                placeholder="Enter directory path"
+                placeholder={t('settings.enterDirectoryPath')}
               />
               {pathError && (
                 <div className="mt-2 flex items-center text-red-600 text-sm">
@@ -226,13 +266,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 className="flex items-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
               >
                 <Check className="h-4 w-4 mr-1" />
-                Save
+                {t('settings.save')}
               </button>
               <button
                 onClick={handlePathCancel}
                 className="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
               >
-                Cancel
+                {t('settings.cancel')}
               </button>
             </div>
           </div>
@@ -244,7 +284,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             >
               <div className="flex items-center justify-between">
                 <p className="text-sm font-mono text-gray-700 break-all flex-1">
-                  {currentInstance.rootDirectory || 'No directory selected'}
+                  {currentInstance.rootDirectory || t('settings.noDirectorySelected')}
                 </p>
                 <Edit3 className="h-4 w-4 text-gray-400 group-hover:text-gray-600 ml-2 flex-shrink-0" />
               </div>
@@ -253,7 +293,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               onClick={onChangeDirectory}
               className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
             >
-              Browse for Directory
+              {t('settings.browseForDirectory')}
             </button>
           </div>
         )}
@@ -263,18 +303,18 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       <div>
         <h3 className="text-lg font-medium text-gray-800 mb-3 flex items-center">
           <Archive className="h-5 w-5 mr-2 text-blue-600" />
-          Sync Mode
+          {t('settings.syncMode')}
         </h3>
         <div className="bg-gray-50 p-4 rounded-lg">
           <div className="flex items-center justify-between mb-3">
             <div>
               <p className="font-medium text-gray-800">
-                {zipMode ? 'ZIP Archive Mode' : 'Individual Files Mode'}
+                {zipMode ? t('settings.zipArchiveMode') : t('settings.individualFilesMode')}
               </p>
               <p className="text-sm text-gray-600">
                 {zipMode 
-                  ? 'Compress entire folder into a ZIP file before uploading'
-                  : 'Upload and sync individual files separately'
+                  ? t('settings.zipModeDesc')
+                  : t('settings.individualModeDesc')
                 }
               </p>
             </div>
@@ -286,12 +326,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
 
           {zipMode && (
-            <AlertBanner variant="info" title="ZIP Mode Benefits:">
+            <AlertBanner variant="info" title={t('settings.zipBenefitsTitle')}>
               <ul className="list-disc list-inside space-y-1 text-xs">
-                <li>Faster upload (single file vs multiple files)</li>
-                <li>Compressed size saves storage space</li>
-                <li>Complete folder backup in one archive</li>
-                <li>Automatic naming: FolderName_YYYY-MM-DD.zip</li>
+                <li>{t('settings.zipBenefit1')}</li>
+                <li>{t('settings.zipBenefit2')}</li>
+                <li>{t('settings.zipBenefit3')}</li>
+                <li>{t('settings.zipBenefit4')}</li>
               </ul>
             </AlertBanner>
           )}
@@ -302,7 +342,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       <div>
         <h3 className="text-lg font-medium text-gray-800 mb-3 flex items-center">
           <RefreshCw className="h-5 w-5 mr-2 text-blue-600" />
-          Sync Settings
+          {t('settings.syncSettings')}
         </h3>
         <div className="space-y-4">
           {/* Auto-sync Toggle */}
@@ -315,12 +355,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   ) : (
                     <PowerOff className="h-4 w-4 mr-2 text-red-600" />
                   )}
-                  Auto-sync {autoSyncEnabled ? 'Enabled' : 'Disabled'}
+                  {autoSyncEnabled ? t('settings.autoSyncEnabled') : t('settings.autoSyncDisabled')}
                 </p>
                 <p className="text-sm text-gray-600">
                   {autoSyncEnabled 
-                    ? 'Files will be synchronized automatically at the set interval'
-                    : 'Automatic synchronization is disabled. Use manual sync only.'
+                    ? t('settings.autoSyncEnabledDesc')
+                    : t('settings.autoSyncDisabledDesc')
                   }
                 </p>
               </div>
@@ -334,8 +374,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
             
             {!autoSyncEnabled && (
-              <AlertBanner variant="warning" title="Auto-sync Disabled">
-                <p>Your files will only sync when you manually click "Sync Now".</p>
+              <AlertBanner variant="warning" title={t('settings.autoSyncDisabledWarning')}>
+                <p>{t('settings.autoSyncDisabledWarningDesc')}</p>
               </AlertBanner>
             )}
           </div>
@@ -344,7 +384,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           {autoSyncEnabled && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Auto-sync interval (minutes)
+                {t('settings.autoSyncInterval')}
               </label>
               <div className="flex items-center gap-3">
                 <input
@@ -355,7 +395,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   onChange={(e) => setSyncInterval(parseInt(e.target.value) || 1)}
                   className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-                <span className="text-sm text-gray-600">minutes</span>
+                <span className="text-sm text-gray-600">{t('settings.minutes')}</span>
                 <button
                   onClick={handleSyncIntervalUpdate}
                   disabled={isUpdatingInterval || syncInterval === Math.floor(currentInstance.syncInterval / (60 * 1000))}
@@ -367,21 +407,21 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                         : 'bg-blue-600 hover:bg-blue-700'
                   }`}
                 >
-                  {isUpdatingInterval ? '✓ Updated' : 'Update'}
+                  {isUpdatingInterval ? t('settings.updated') : t('settings.update')}
                 </button>
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                Current: {Math.floor(currentInstance.syncInterval / (60 * 1000))} minutes
+                {t('settings.current')} {Math.floor(currentInstance.syncInterval / (60 * 1000))} {t('settings.minutes')}
               </p>
             </div>
           )}
           
           <div className="flex items-center justify-between">
-            <span className="text-gray-700">Last sync</span>
+            <span className="text-gray-700">{t('settings.lastSync')}</span>
             <span className="text-sm text-gray-500">
               {currentInstance.lastSyncTime 
                 ? new Date(currentInstance.lastSyncTime).toLocaleString()
-                : 'Never'
+                : t('settings.never')
               }
             </span>
           </div>
@@ -392,13 +432,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       <div>
         <h3 className="text-lg font-medium text-gray-800 mb-3 flex items-center">
           <Download className="h-5 w-5 mr-2 text-blue-600" />
-          Download Settings
+          {t('settings.downloadSettings')}
         </h3>
         <div className="space-y-4">
           {/* Download Directory */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Download Directory
+              {t('settings.downloadDirectory')}
             </label>
             <div className="flex gap-2">
               <input
@@ -406,14 +446,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 value={downloadPath}
                 onChange={(e) => setDownloadPath(e.target.value)}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
-                placeholder="Select download directory..."
+                placeholder={t('settings.selectDownloadDirectory')}
                 readOnly
               />
               <button
                 onClick={handleSelectDownloadDirectory}
                 className="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
               >
-                Browse
+                {t('settings.browse')}
               </button>
             </div>
           </div>
@@ -422,8 +462,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-gray-800">Unzip downloaded files</p>
-                <p className="text-sm text-gray-600">Extract files from ZIP after download</p>
+                <p className="font-medium text-gray-800">{t('settings.unzipDownloadedFiles')}</p>
+                <p className="text-sm text-gray-600">{t('settings.unzipDesc')}</p>
               </div>
               <ToggleSwitch
                 enabled={downloadUnzip}
@@ -433,8 +473,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-gray-800">Replace existing files</p>
-                <p className="text-sm text-gray-600">Overwrite files (creates backup)</p>
+                <p className="font-medium text-gray-800">{t('settings.replaceExistingFiles')}</p>
+                <p className="text-sm text-gray-600">{t('settings.replaceDesc')}</p>
               </div>
               <ToggleSwitch
                 enabled={downloadReplace}
@@ -452,7 +492,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 : 'bg-blue-600 hover:bg-blue-700'
             }`}
           >
-            {isUpdatingDownloadSettings ? '✓ Updated' : 'Update Download Settings'}
+            {isUpdatingDownloadSettings ? t('settings.updated') : t('settings.updateDownloadSettings')}
           </button>
         </div>
       </div>
@@ -461,14 +501,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       <div>
         <h3 className="text-lg font-medium text-gray-800 mb-3 flex items-center">
           <Info className="h-5 w-5 mr-2 text-blue-600" />
-          About
+          {t('settings.about')}
         </h3>
         <div className="space-y-2 text-sm text-gray-600">
-          <p><strong>Version:</strong> 1.0.0</p>
-          <p><strong>Instance ID:</strong> {currentInstance.id}</p>
-          <p><strong>Sync Mode:</strong> {zipMode ? 'ZIP Archive' : 'Individual Files'}</p>
-          <p><strong>Auto-sync:</strong> {autoSyncEnabled ? 'Enabled' : 'Disabled'}</p>
-          <p><strong>Description:</strong> Sync your files with Google Drive automatically</p>
+          <p><strong>{t('settings.version')}</strong> 1.0.0</p>
+          <p><strong>{t('settings.instanceId')}</strong> {currentInstance.id}</p>
+          <p><strong>{t('settings.syncModeLabel')}</strong> {zipMode ? t('settings.zipArchive') : t('settings.individualFiles')}</p>
+          <p><strong>{t('settings.autoSync')}</strong> {autoSyncEnabled ? t('settings.enabled') : t('settings.disabled')}</p>
+          <p><strong>{t('settings.description')}</strong> {t('settings.descriptionText')}</p>
         </div>
       </div>
     </Modal>

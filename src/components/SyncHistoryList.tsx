@@ -2,22 +2,33 @@
 import { Clock, FileText } from 'lucide-react';
 import { SyncRecord } from '../types';
 import StatusBadge from './StatusBadge';
+import { useTranslation } from '../i18n/LanguageContext';
 
 interface SyncHistoryListProps {
   history: SyncRecord[];
 }
 
 const SyncHistoryList: React.FC<SyncHistoryListProps> = ({ history }) => {
+  const { t } = useTranslation();
+
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);
     const now = new Date();
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
     
-    if (diffInMinutes < 1) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes} minute${diffInMinutes > 1 ? 's' : ''} ago`;
+    if (diffInMinutes < 1) return t('history.justNow');
+    if (diffInMinutes < 60) {
+      return diffInMinutes > 1 
+        ? t('history.minutesAgo', { count: diffInMinutes })
+        : t('history.minuteAgo', { count: diffInMinutes });
+    }
     
     const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+    if (diffInHours < 24) {
+      return diffInHours > 1
+        ? t('history.hoursAgo', { count: diffInHours })
+        : t('history.hourAgo', { count: diffInHours });
+    }
     
     return date.toLocaleDateString();
   };
@@ -33,7 +44,7 @@ const SyncHistoryList: React.FC<SyncHistoryListProps> = ({ history }) => {
                   ? 'bg-green-100 text-green-700' 
                   : 'bg-red-100 text-red-700'
               }`}>
-                {record.success ? 'Success' : 'Error'}
+                {record.success ? t('history.success') : t('history.error')}
               </span>
               <span className="text-sm text-gray-600">{record.message}</span>
             </div>
@@ -47,7 +58,7 @@ const SyncHistoryList: React.FC<SyncHistoryListProps> = ({ history }) => {
             <div className="space-y-2">
               <h4 className="text-sm font-medium text-gray-700 flex items-center">
                 <FileText className="w-4 h-4 mr-1" />
-                Files ({record.results.length})
+                {t('history.files')} ({record.results.length})
               </h4>
               <div className="space-y-1 max-h-40 overflow-y-auto">
                 {record.results.map((result, resultIndex) => (

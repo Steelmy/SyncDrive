@@ -119,6 +119,10 @@ declare global {
       }>;
       getConfig: () => Promise<AppConfig>;
       
+      // Language
+      getLanguage: () => Promise<string>;
+      setLanguage: (lang: string) => Promise<boolean>;
+      
       // Event listeners
       onConfigLoaded: (callback: (data: AppConfig) => void) => void;
       onSyncCompleted: (callback: (data: {
